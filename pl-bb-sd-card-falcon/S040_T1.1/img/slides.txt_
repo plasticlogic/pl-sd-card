@@ -1,0 +1,80 @@
+# Clock demo - full picture
+image, CLOCK.PGM, 0, 0, 0, 0, 400, 240
+power, on
+update, 2, 0, 0, 0, 400, 240, 0
+power, off
+sleep, 2000
+
+# Figures: y=12, w=33, h=35, x:
+# 0: 3, 1: 35, 2: 63, 3: 92, 4: 124, 5: 155
+# 6: 184, 7: 213, 8: 243, 9: 273
+#
+# ':':  x=307, y=12, w=10, h=35
+
+# Initial time: 13:38:56
+#                               x,    y,    w,    h, gl
+fill,                           0,    0,  400,  240, 15
+#      file,      i_x,  i_y,  o_x,  o_y,  wid,  hgt
+image, CLOCK.PGM, 307,   12,  145,   12,   10,   35
+image, CLOCK.PGM, 307,   12,  245,   12,   10,   35
+image, CLOCK.PGM,  35,   12,   65,   12,   32,   35
+image, CLOCK.PGM,  92,   12,  105,   12,   32,   35
+image, CLOCK.PGM,  92,   12,  165,   12,   32,   35
+image, CLOCK.PGM, 243,   12,  205,   12,   32,   35
+image, CLOCK.PGM, 155,   12,  265,   12,   32,   35
+image, CLOCK.PGM, 184,   12,  305,   12,   32,   35
+
+# "Clock demo" title
+#
+image, CLOCK.PGM,   3,   56,   64,  115,  274,   38
+#
+power, on
+update, 2,       0,    0,    0,  400,  240,    0
+power, off
+
+# Animation starts now
+# 
+power, on
+#
+# 13:38:57
+image, CLOCK.PGM, 213,   12,  305,   12,   32,   35
+update, 4,     0,       305,   12,   32,   35, 1000
+# 13:38:58
+image, CLOCK.PGM, 243,   12,  305,   12,   32,   35
+update, 4,     0,       305,   12,   32,   35, 500
+# show map
+fill,                          64,  115,  276,   38, 15
+image, CLOCK.PGM, 238,   93,  119,   65,  162,  146
+update, 2,      2,             0,   50,  400,  180, 100
+# 13:38:59
+image, CLOCK.PGM, 273,   12,  305,   12,   32,   35
+update, 4,    0,       305,   12,   32,   35, 1000
+# 13:39:00
+image, CLOCK.PGM, 273,   12,  205,   12,   32,   35
+image, CLOCK.PGM,   3,   12,  265,   12,   32,   35
+image, CLOCK.PGM,   3,   12,  305,   12,   32,   35
+update, 4,    0,       205,   12,  132,   35, 1000
+# 13:39:01
+image, CLOCK.PGM,  35,   12,  305,   12,   32,   35
+update, 4,    0,       305,   12,   32,   35, 100
+# show whether status
+fill,                         119,   65,  164,  146, 15
+image, CLOCK.PGM,   2,  104,   83,   76,  234,  123
+update, 2,    2,              0,   50,  400,  180, 500
+# 13:39:02
+image, CLOCK.PGM,  63,   12,  305,   12,   32,   35
+update, 4,    0,       305,   12,   32,   35, 1000
+# 13:39:03
+image, CLOCK.PGM,  92,   12,  305,   12,   32,   35
+update, 4,    0,       305,   12,   32,   35, 1000
+#
+power, off
+sleep, 1000
+
+# Show the calendar picture now
+#
+image, 23.PGM, 0, 0, 0, 0, 400, 240
+power, on
+update, 2, 2,0, 0, 400, 240, 0
+power, off
+sleep, 2000
