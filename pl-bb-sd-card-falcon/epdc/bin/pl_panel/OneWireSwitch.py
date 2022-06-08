@@ -45,7 +45,7 @@ class OneWireSwitch:
                                 print("Failed to open file '", out_file, "'.")
 
         __on_state = 0xFF
-        __off_state = 0xFE
+        __off_state = 0xF0
 
 def search_one_wire(count: int = 3) -> None:
         """Search for one wire switches.
