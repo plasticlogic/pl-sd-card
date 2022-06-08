@@ -45,10 +45,14 @@ def search_one_wire(count: int = 3) -> None:
         """Search for one wire switches.
         """
         search_file_path = os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_search")
-        search_file = open(search_file_path, mode="w+")
+        search_file = open(search_file_path, mode="w")
         search_file.write(str(count))
+        search_file.close()
+
+        search_file = open(search_file_path, mode="r")
         while search_file.read(1) != "0":
-                sleep(0.1)
+                sleep(1)
+                search_file.seek(0, 0)
         search_file.close()
 
 def remove_one_wire_devices() -> None:
