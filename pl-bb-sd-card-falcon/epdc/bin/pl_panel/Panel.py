@@ -45,10 +45,8 @@ class Panel:
                 raw_img_data = bytearray([0xFF] * 1280 * 960)
                 for dsp_idx in range(len(self.__displays)):
                         raw_img_path = os.path.join(POST_BUFFER_FOLDER, f'{dsp_idx:03d}.raw')
-                        raw_img_file = open(raw_img_path, "wb")
-                        raw_img_file.write(raw_img_data)
-                        raw_img_file.close()
-
+                        with open(raw_img_path, "wb") as raw_img_file:
+                                raw_img_file.write(raw_img_data)
 
                 for display in self.__displays:
                         display.enable()
@@ -65,7 +63,6 @@ class Panel:
                         return
                 
                 image_list = os.listdir(update_folder)
-                print(image_list)
                 panel_elements = max(len(self.__displays), len(image_list))
 
                 img_idx = 0
