@@ -52,14 +52,21 @@ def search_one_wire(count: int = 3) -> None:
         """
         search_file_path = os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_search")
         
-        search_file_path = open(search_file_path, mode="w")
-        with search_file_path:
+        try:
+                search_file = open(search_file_path, mode="w")
                 search_file.write(str(count))
+        except IOError:
+                print("File IO error.")
+        search_file.close()
 
-        with open(search_file_path, mode="r") as search_file:
+        try:
+                search_file = open(search_file_path, mode="r")
                 while search_file.read(1) != "0":
                         sleep(1)
                         search_file.seek(0, 0)
+        except IOError:
+                print("File IO Error")
+        search_file.close()
 
 def remove_one_wire_devices() -> None:
         """Removes all one wire devices."""
