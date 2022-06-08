@@ -79,7 +79,6 @@ class Panel:
                 for display_idx in range(panel_elements):
                         pre_file = os.path.join(PRE_BUFFER_FOLDER, pre_buffer_files[display_idx])
                         post_file = os.path.join(POST_BUFFER_FOLDER, post_buffer_files[display_idx])
-                        print("PRE: ", pre_file, "POST: ", post_file)
                         current_display = self.__displays[display_idx]
                         current_display.enable()
                         current_display.write_pre_buffer(pre_file)
@@ -93,8 +92,6 @@ class Panel:
                 Convert image into raw format and copy it into post buffer
                 """
                 target_path = os.path.join(POST_BUFFER_FOLDER, f'{idx:03d}.raw')
-
-                print("SRC: ", img_path, "DST: ", target_path)
                 subprocess.call(["png2cfa", "-i", img_path, "-o", target_path])
 
 
