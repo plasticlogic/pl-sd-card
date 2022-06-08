@@ -1,3 +1,3 @@
 ##!/bin/bash
 
-echo "${@:2}"
+/boot/uboot/epdc/bin/pl_panel/pl_panel.py "${@}"
