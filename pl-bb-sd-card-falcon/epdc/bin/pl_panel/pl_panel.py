@@ -23,6 +23,9 @@ def main() -> None:
         if args.clear:
                 pl_panel.clear()
 
+        if args.update_all:
+                pl_panel.update(args.update_all)
+
         
 
 if __name__ == "__main__":

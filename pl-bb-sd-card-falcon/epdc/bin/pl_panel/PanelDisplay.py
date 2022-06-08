@@ -2,6 +2,7 @@
 Panel display class module.
 """
 
+from asyncio.subprocess import DEVNULL
 import subprocess
 
 from OneWireSwitch import OneWireSwitch, SwitchState
@@ -12,7 +13,11 @@ class PanelDisplay:
                 self.__display_idx = display_idx
 
         def update(self, image_path: str) -> None:
-                subprocess.call(["epdc-app", "-update_image", image_path],
+                subprocess.call(["epdc-app", "-load_buffer", image_path, "7", "2", "0,0,1280,960"],
+                stdout=subprocess.DEVNULL)
+
+        def write_pre_buffer(self, buf_path: str) -> None:
+                subprocess.call(["epdc-app", "-override_post_buffer", buf_path, "1"],
                 stdout=subprocess.DEVNULL)
 
         def clear(self) -> None:
