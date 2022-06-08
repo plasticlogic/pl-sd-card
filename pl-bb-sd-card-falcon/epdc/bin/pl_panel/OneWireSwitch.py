@@ -32,11 +32,17 @@ class OneWireSwitch:
                 """
                 out_file = os.path.join(self.dev_path, "output")
 
-                with open(out_file, "wb") as output_file:
-                        if (state == SwitchState.ON):
-                                output_file.write(self.__on_state.to_bytes(1, 'little'))
-                        else:
-                                output_file.write(self.__off_state.to_bytes(1, 'little'))
+                while True:
+                        try:
+                                output_file = open(out_file, "wb")
+                                with output_file:
+                                        if (state == SwitchState.ON):
+                                                output_file.write(self.__on_state.to_bytes(1, 'little'))
+                                        else:
+                                                output_file.write(self.__off_state.to_bytes(1, 'little'))
+                                break
+                        except IOError:
+                                print("Failed to open file '", out_file, "'.")
 
         __on_state = 0xFF
         __off_state = 0xFE
@@ -46,7 +52,8 @@ def search_one_wire(count: int = 3) -> None:
         """
         search_file_path = os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_search")
         
-        with open(search_file_path, mode="w") as search_file_path:
+        search_file_path = open(search_file_path, mode="w")
+        with search_file_path:
                 search_file.write(str(count))
 
         with open(search_file_path, mode="r") as search_file:
