@@ -12,6 +12,9 @@ import OneWireSwitch
 
 PRE_BUFFER_FOLDER = "/tmp/pre"
 POST_BUFFER_FOLDER = "/tmp/post"
+CONFIG_PANEL_FOLDER = "/boot/uboot/panel"
+CONFIG_IMAGES_FOLDER = os.path.join(CONFIG_PANEL_FOLDER, "numbers")
+CONFIG_ORIENTATION_FILE = os.path.join(CONFIG_PANEL_FOLDER, "display_arrangement.txt")
 
 class Panel:
         """
@@ -59,20 +62,33 @@ class Panel:
                 """
                 Update panel.
                 """
-                if (not os.path.isdir(update_folder)):
+                if self.__is_reorientable():
+                        self.__reorientate_panels()
+                        self.__update(update_folder)
+                else:
+                        self.config_panel_update()
+
+        def config_panel_update(self) -> None:
+                self.__update(CONFIG_IMAGES_FOLDER)
+
+        def __update(self, folder_path: str) -> None:
+                if (not os.path.isdir(folder_path)):
                         return
                 
-                image_list = os.listdir(update_folder)
-                panel_elements = max(len(self.__displays), len(image_list))
+                image_list = os.listdir(folder_path)
+                image_list.sort()
+                panel_elements = min(len(self.__displays), len(image_list))
 
                 img_idx = 0
                 for image in image_list:
-                        image_path = os.path.join(update_folder, image)
+                        image_path = os.path.join(folder_path, image)
                         self.__copy_convert_image(image_path, img_idx)
                         img_idx += 1
 
                 post_buffer_files = os.listdir(POST_BUFFER_FOLDER)
+                post_buffer_files.sort()
                 pre_buffer_files = os.listdir(PRE_BUFFER_FOLDER)
+                pre_buffer_files.sort()
                 for display_idx in range(panel_elements):
                         pre_file = os.path.join(PRE_BUFFER_FOLDER, pre_buffer_files[display_idx])
                         post_file = os.path.join(POST_BUFFER_FOLDER, post_buffer_files[display_idx])
@@ -83,6 +99,45 @@ class Panel:
                         current_display.disable()
 
                 self.__copy_post_to_pre()
+
+        def __get_orientation_arr(self):
+                orientation_arr = []
+                
+                if not os.path.isfile(CONFIG_ORIENTATION_FILE):
+                        return orientation_arr
+
+                with open(CONFIG_ORIENTATION_FILE) as f:
+                        for line in f:
+                                for num in line.split():
+                                        orientation_arr.append(int(num))
+                
+                return orientation_arr
+
+        def __is_reorientable(self) -> bool:
+                
+                orientation_arr = self.__get_orientation_arr()
+
+                num_dsp = len(self.__displays)
+                if not len(orientation_arr) == num_dsp:
+                        return False
+                
+                if max(orientation_arr) > num_dsp:
+                        return False
+
+                for dsp_idx in orientation_arr:
+                        if orientation_arr.count(dsp_idx) > 1:
+                                return False
+                
+                return True
+
+        def __reorientate_panels(self) -> None:
+                orientation_arr = self.__get_orientation_arr()
+                new_dsp_list = []
+
+                for dsp_idx in orientation_arr:
+                        new_dsp_list.append(self.__displays[dsp_idx - 1])
+                
+                self.__displays = new_dsp_list
         
         def __copy_convert_image(self, img_path: str, idx: int) -> None:
                 """
