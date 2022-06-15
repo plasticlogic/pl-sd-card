@@ -13,16 +13,13 @@ class PanelDisplay:
                 self.__display_idx = display_idx
 
         def update(self, image_path: str) -> None:
-                subprocess.call(["epdc-app", "-load_buffer", image_path, "7", "2", "0,0,1280,960"],
-                stdout=subprocess.DEVNULL)
+                try_call_epdc(["epdc-app", "-load_buffer", image_path, "7", "2", "0,0,1280,960"])
 
         def write_pre_buffer(self, buf_path: str) -> None:
-                subprocess.call(["epdc-app", "-override_post_buffer", buf_path, "1"],
-                stdout=subprocess.DEVNULL)
+                try_call_epdc(["epdc-app", "-override_post_buffer", buf_path, "1"])
 
         def clear(self) -> None:
-                subprocess.call(["epdc-app", "-fill", "GL15", "0"],
-                stdout=subprocess.DEVNULL)
+                try_call_epdc(["epdc-app", "-fill", "GL15", "0"])
 
         def enable(self) -> None:
                 self.__one_wire_switch.set_switch(SwitchState.ON)
@@ -35,4 +32,11 @@ def start_epdc() -> None:
 
 def stop_epdc() -> None:
         subprocess.call(["epdc-app", "-stop_epdc"], stdout=subprocess.DEVNULL)
-        
+
+def try_call_epdc(args) -> None:
+        while True:
+                try:
+                        subprocess.call(args, stdout=subprocess.DEVNULL)
+                        break
+                except:
+                        start_epdc()
