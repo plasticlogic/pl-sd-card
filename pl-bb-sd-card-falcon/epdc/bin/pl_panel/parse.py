@@ -26,5 +26,10 @@ def init_argparse() -> argparse.ArgumentParser:
                 "-a", "--update_all", type=str,
                 help="Updates all panel displays with content of given folder."
         )
+
+        parser.add_argument(
+                "--show_arrangement", action="store_true",
+                help="Show panel display arrangement."
+        )
         
         return parser

@@ -20,6 +20,11 @@ def main() -> None:
         pl_panel = Panel.Panel()
         pl_panel.get_displays_by_switches()
 
+        if args.show_arrangement:
+                pl_panel.clear()
+                pl_panel.config_panel_update()
+                return
+
         if args.clear:
                 pl_panel.clear()
 
