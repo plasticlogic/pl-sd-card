@@ -42,10 +42,10 @@ class OneWireSwitch:
                                                 output_file.write(self.__off_state.to_bytes(1, 'little'))
                                 break
                         except IOError:
-                                print("Failed to open file '", out_file, "'.")
+                                pass #print("Failed to open file '", out_file, "'.")
 
         __on_state = 0xFF
-        __off_state = 0xF0
+        __off_state = 0xFC # 0xF0
 
 def search_one_wire(count: int = 3) -> None:
         """Search for one wire switches.
