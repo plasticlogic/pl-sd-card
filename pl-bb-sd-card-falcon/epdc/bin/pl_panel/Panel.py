@@ -45,6 +45,9 @@ class Panel:
                 """
                 Clear the whole panel.
                 """
+                if self.__is_reorientable():
+                        self.__reorientate_panels()
+
                 raw_img_data = bytearray([0xFF] * 1280 * 960)
                 for dsp_idx in range(len(self.__displays)):
                         raw_img_path = os.path.join(POST_BUFFER_FOLDER, f'{dsp_idx:03d}.raw')
