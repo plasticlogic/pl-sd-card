@@ -12,9 +12,10 @@ def main() -> None:
         args = parser.parse_args()
 
         if args.init:
+                PanelDisplay.start_epdc()
                 OneWireSwitch.remove_one_wire_devices()
                 OneWireSwitch.search_one_wire()
-                PanelDisplay.start_epdc()
+                #PanelDisplay.start_epdc()
                 return
 
         pl_panel = Panel.Panel()
