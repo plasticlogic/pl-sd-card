@@ -27,6 +27,9 @@ class PanelDisplay:
         def disable(self) -> None:
                 self.__one_wire_switch.set_switch(SwitchState.OFF)
 
+def set_temperature() -> None:
+        try_call_epdc(["epdc-app", "-set_temperature", "23"])
+
 def start_epdc() -> None:
         subprocess.call(["epdc-app", "-start_epdc", "0", "0"], stdout=subprocess.DEVNULL)
 
@@ -34,7 +37,13 @@ def stop_epdc() -> None:
         subprocess.call(["epdc-app", "-stop_epdc"], stdout=subprocess.DEVNULL)
 
 def try_call_epdc(args) -> None:
+        timeout_counter = 0
+        max_timeout = 10
         while True:
+                if (timeout_counter >= max_timeout):
+                        print("Error: Failed to call epdc-app!")
+                        break
+                timeout_counter += 1
                 try:
                         subprocess.call(args, stdout=subprocess.DEVNULL)
                         break
