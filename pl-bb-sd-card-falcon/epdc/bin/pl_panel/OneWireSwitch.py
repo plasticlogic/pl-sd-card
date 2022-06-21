@@ -11,6 +11,8 @@ from typing import List
 ONE_WIRE_DEVICES_FOLDER = "/sys/bus/w1/devices"
 ONE_WIRE_MASTER_FOLDER = "/sys/bus/w1/devices/w1_bus_master1"
 
+ONE_WIRE_TIMEOUT = 50
+
 class FamilyCodes:
         DS2413 = "3a"
 
@@ -32,20 +34,57 @@ class OneWireSwitch:
                 """
                 out_file = os.path.join(self.dev_path, "output")
 
+                timeout_counter = 0
+
                 while True:
+                        if (timeout_counter >= ONE_WIRE_TIMEOUT):
+                                print("Error: Failed to write to 1w!")
+                                break
+
+                        timeout_counter += 1
                         try:
                                 output_file = open(out_file, "wb")
                                 with output_file:
                                         if (state == SwitchState.ON):
                                                 output_file.write(self.__on_state.to_bytes(1, 'little'))
+                                                if (not self.__check_switch_state(SwitchState.ON)):
+                                                        #print("ON TEST: ", self.__check_switch_state(SwitchState.ON))
+                                                        continue
                                         else:
                                                 output_file.write(self.__off_state.to_bytes(1, 'little'))
+                                                if (not self.__check_switch_state(SwitchState.OFF)):
+                                                        #print("OFF TEST: ", self.__check_switch_state(SwitchState.OFF))
+                                                        continue
                                 break
                         except IOError:
                                 pass #print("Failed to open file '", out_file, "'.")
 
-        __on_state = 0xFF
-        __off_state = 0xFC # 0xF0
+        def __check_switch_state(self, state: SwitchState) -> bool:
+                state_file_path = os.path.join(self.dev_path, "state")
+
+                timeout_counter = 0
+
+                while True:
+                        if (timeout_counter >= ONE_WIRE_TIMEOUT):
+                                print("Error: Failed to read 1w!")
+                                break
+                        
+                        timeout_counter += 1
+                        try:
+                                state_file = open(state_file_path, "rb")
+                                with state_file:
+                                        #print("CHECK: ", self.__off_state.to_bytes(1, "little"))
+                                        #print("RESULT: ", state_file.read(1) == self.__off_state.to_bytes(1, "little"))
+                                        if (state == SwitchState.ON):
+                                                #print("STATE: ", state_file.read(1))
+                                                return state_file.read(1) == self.__on_state.to_bytes(1, "little")
+                                        else:
+                                                return state_file.read(1) == self.__off_state.to_bytes(1, "little")
+                        except:
+                                pass
+
+        __on_state = 0x0F
+        __off_state = 0xF0 # 0xFC
 
 def search_one_wire(count: int = 3) -> None:
         """Search for one wire switches.
