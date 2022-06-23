@@ -8,7 +8,7 @@ import Panel
 import OneWireSwitch
 import PanelDisplay
 
-LOCK_FILE_PATH = ".lock_script"
+LOCK_FILE_PATH = "/tmp/.lock_script"
 
 def lock_mutex():
         if os.path.exists(LOCK_FILE_PATH):
