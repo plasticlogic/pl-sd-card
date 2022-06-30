@@ -46,12 +46,13 @@ class OneWireSwitch:
                                 output_file = open(out_file, "wb")
                                 with output_file:
                                         if (state == SwitchState.ON):
-                                                output_file.write(self.__on_state.to_bytes(1, 'little'))
+                                                #print(self.__on_state)
+                                                output_file.write(self.__on_state)
                                                 if (not self.__check_switch_state(SwitchState.ON)):
                                                         #print("ON TEST: ", self.__check_switch_state(SwitchState.ON))
                                                         continue
                                         else:
-                                                output_file.write(self.__off_state.to_bytes(1, 'little'))
+                                                output_file.write(self.__off_state)
                                                 if (not self.__check_switch_state(SwitchState.OFF)):
                                                         #print("OFF TEST: ", self.__check_switch_state(SwitchState.OFF))
                                                         continue
@@ -68,27 +69,30 @@ class OneWireSwitch:
                         if (timeout_counter >= ONE_WIRE_TIMEOUT):
                                 print("Error: Failed to read 1w!")
                                 break
-                        
+
                         timeout_counter += 1
                         try:
                                 state_file = open(state_file_path, "rb")
                                 with state_file:
                                         #print("CHECK: ", self.__off_state.to_bytes(1, "little"))
-                                        #print("RESULT: ", state_file.read(1) == self.__off_state.to_bytes(1, "little"))
+                                        #print("RESULT: ", state_file.read(1))
                                         if (state == SwitchState.ON):
                                                 #print("STATE: ", state_file.read(1))
-                                                return state_file.read(1) == self.__on_state.to_bytes(1, "little")
+                                                return state_file.read(1) == self.__check_on_state
                                         else:
-                                                return state_file.read(1) == self.__off_state.to_bytes(1, "little")
+                                                return state_file.read(1) == self.__check_off_state
                         except:
                                 pass
 
-        __on_state = 0x0F
-        __off_state = 0xF0 # 0xFC
+        __on_state = b"\xfe" # GPIO A -> off; GPIO B -> on
+        __off_state = b"\xfd"
+        __check_on_state = b"\x3c"
+        __check_off_state = b"\xc3"
 
 def search_one_wire(count: int = 3) -> None:
         """Search for one wire switches.
         """
+        #print("Search devices")
         search_file_path = os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_search")
         
         try:
@@ -106,13 +110,18 @@ def search_one_wire(count: int = 3) -> None:
         except IOError:
                 print("File IO Error")
         search_file.close()
+        return
 
 def remove_one_wire_devices() -> None:
         """Removes all one wire devices."""
-        with open(ONE_WIRE_MASTER_FOLDER + "/w1_master_remove", mode="w") as remove_file:
-                dev_list = get_all_devices()
-                for dev in dev_list:
+        #print("Remove devices")
+        dev_list = get_all_devices()
+        #print("Dev list: ", dev_list)
+        for dev in dev_list:
+                #print(dev)
+                with open(os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_remove"), mode="w") as remove_file:
                         remove_file.write(dev)
+        return
 
 def get_all_devices() -> List[str]:
         """Get all one wire devices id strings."""
