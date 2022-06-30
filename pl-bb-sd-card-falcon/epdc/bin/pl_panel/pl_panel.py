@@ -26,7 +26,6 @@ def execute(args) -> None:
                 PanelDisplay.start_epdc()
                 OneWireSwitch.remove_one_wire_devices()
                 OneWireSwitch.search_one_wire()
-                #PanelDisplay.start_epdc()
                 return
 
         pl_panel = Panel.Panel()
