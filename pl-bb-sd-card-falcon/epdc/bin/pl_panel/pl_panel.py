@@ -24,6 +24,7 @@ def unlock_mutex():
 def execute(args) -> None:
         if args.init:
                 PanelDisplay.start_epdc()
+                PanelDisplay.set_temperature()
                 OneWireSwitch.remove_one_wire_devices()
                 OneWireSwitch.search_one_wire()
                 return
