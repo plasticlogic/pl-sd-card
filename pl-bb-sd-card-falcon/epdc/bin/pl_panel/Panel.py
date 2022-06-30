@@ -66,15 +66,18 @@ class Panel:
                 Update panel.
                 """
                 if self.__is_reorientable():
+                        #print("normal update")
                         self.__reorientate_panels()
                         self.__update(update_folder)
                 else:
+                        #print("number update")
                         self.config_panel_update()
 
         def config_panel_update(self) -> None:
                 self.__update(CONFIG_IMAGES_FOLDER)
 
         def __update(self, folder_path: str) -> None:
+                #print("Path: ", folder_path)
                 if (not os.path.isdir(folder_path)):
                         return
                 
@@ -84,9 +87,13 @@ class Panel:
 
                 img_idx = 0
                 for image in image_list:
+                        #print("Image idx ", img_idx)
                         image_path = os.path.join(folder_path, image)
                         self.__copy_convert_image(image_path, img_idx)
                         img_idx += 1
+
+                #print("Image idx: ", img_idx)
+                #print("Panel count: ", panel_elements)
 
                 post_buffer_files = os.listdir(POST_BUFFER_FOLDER)
                 post_buffer_files.sort()
