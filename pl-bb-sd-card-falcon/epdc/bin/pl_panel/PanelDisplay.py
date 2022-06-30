@@ -27,8 +27,8 @@ class PanelDisplay:
         def disable(self) -> None:
                 self.__one_wire_switch.set_switch(SwitchState.OFF)
 
-def set_temperature() -> None:
-        try_call_epdc(["epdc-app", "-set_temperature", "23"])
+def set_temperature(temp: int = 23) -> None:
+        try_call_epdc(["epdc-app", "-set_temperature", str(temp)])
 
 def start_epdc() -> None:
         subprocess.call(["epdc-app", "-start_epdc", "0", "0"], stdout=subprocess.DEVNULL)
