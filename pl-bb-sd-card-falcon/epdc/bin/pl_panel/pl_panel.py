@@ -50,6 +50,7 @@ def main() -> None:
                 parser = parse.init_argparse()
                 args = parser.parse_args()
                 execute(args)
+                sys.stdout.flush()
 
                 #unlock_mutex()
         except:
