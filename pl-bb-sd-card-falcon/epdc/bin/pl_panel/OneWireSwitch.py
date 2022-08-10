@@ -84,10 +84,10 @@ class OneWireSwitch:
                         except:
                                 pass
 
-        __on_state = b"\xfe" # GPIO A -> off; GPIO B -> on
-        __off_state = b"\xfd"
-        __check_on_state = b"\x3c"
-        __check_off_state = b"\xc3"
+        __on_state = b"\xff" # GPIO A -> off; GPIO B -> on
+        __off_state = b"\xfc"
+        __check_on_state = b"\x0f"
+        __check_off_state = b"\xf0"
 
 def search_one_wire(count: int = 3) -> None:
         """Search for one wire switches.
