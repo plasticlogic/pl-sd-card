@@ -45,15 +45,17 @@ def execute(args) -> None:
 
 def main() -> None:
         try:
-                lock_mutex()
+                #lock_mutex()
 
                 parser = parse.init_argparse()
                 args = parser.parse_args()
                 execute(args)
+                sys.stdout.flush()
 
-                unlock_mutex()
+                #unlock_mutex()
         except:
-                unlock_mutex()
+                pass
+                #unlock_mutex()
 
 if __name__ == "__main__":
         main()
