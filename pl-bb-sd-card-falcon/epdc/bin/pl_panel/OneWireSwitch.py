@@ -12,6 +12,7 @@ ONE_WIRE_DEVICES_FOLDER = "/sys/bus/w1/devices"
 ONE_WIRE_MASTER_FOLDER = "/sys/bus/w1/devices/w1_bus_master1"
 
 ONE_WIRE_TIMEOUT = 50
+ONE_WIRE_SEARCH_MAX_LOOPS = 25
 
 class FamilyCodes:
         DS2413 = "3a"
@@ -94,8 +95,12 @@ def search_one_wire(num_switches: int = 32) -> None:
         """
         #print("Search devices")
         search_file_path = os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_search")
+        loop_count = 0
         
         while True:
+                if loop_count >= ONE_WIRE_SEARCH_MAX_LOOPS:
+                        print("Cannot find correct number of displays!")
+                        raise Exception("Search Timeout")
                 try:
                         search_file = open(search_file_path, mode="w")
                         search_file.write(str(1))
@@ -123,6 +128,7 @@ def search_one_wire(num_switches: int = 32) -> None:
                         break
                 else:
                         print("Found " + display_idx + " displays.")
+                        loop_count += 1
                         continue
         return
 
