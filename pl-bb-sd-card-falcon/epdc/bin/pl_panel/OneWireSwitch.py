@@ -89,27 +89,46 @@ class OneWireSwitch:
         __check_on_state = b"\x3c"
         __check_off_state = b"\xc3"
 
-def search_one_wire(count: int = 3) -> None:
+def search_one_wire(num_switches: int = 32) -> None:
         """Search for one wire switches.
         """
         #print("Search devices")
         search_file_path = os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_search")
+        loop_count = 0
         
-        try:
-                search_file = open(search_file_path, mode="w")
-                search_file.write(str(count))
-        except IOError:
-                print("File IO error.")
-        search_file.close()
+        while True:
+                if loop_count >= ONE_WIRE_SEARCH_MAX_LOOPS:
+                        print("Cannot find correct number of displays!")
+                        raise Exception("Search Timeout")
+                try:
+                        search_file = open(search_file_path, mode="w")
+                        search_file.write(str(1))
+                except IOError:
+                        print("File IO error.")
+                search_file.close()
+                
+                try:
+                        search_file = open(search_file_path, mode="r")
+                        while search_file.read(1) != "0":
+                                sleep(1)
+                                search_file.seek(0, 0)
+                except IOError:
+                        print("File IO Error")
+                search_file.close()
 
-        try:
-                search_file = open(search_file_path, mode="r")
-                while search_file.read(1) != "0":
-                        sleep(1)
-                        search_file.seek(0, 0)
-        except IOError:
-                print("File IO Error")
-        search_file.close()
+                path = ONE_WIRE_DEVICES_FOLDER
+                device_ids = os.listdir(path)
+
+                display_idx = 0
+                for dev_id in device_ids:
+                        if dev_id.find(FamilyCodes.DS2413) != -1:
+                                display_idx += 1
+                if display_idx == num_switches:
+                        break
+                else:
+                        print("Found " + display_idx + " displays.")
+                        loop_count += 1
+                        continue
         return
 
 def remove_one_wire_devices() -> None:
