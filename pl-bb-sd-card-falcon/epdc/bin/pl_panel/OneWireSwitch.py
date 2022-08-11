@@ -12,6 +12,7 @@ ONE_WIRE_DEVICES_FOLDER = "/sys/bus/w1/devices"
 ONE_WIRE_MASTER_FOLDER = "/sys/bus/w1/devices/w1_bus_master1"
 
 ONE_WIRE_TIMEOUT = 50
+ONE_WIRE_SEARCH_MAX_LOOPS = 25
 
 class FamilyCodes:
         DS2413 = "3a"
