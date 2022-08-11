@@ -127,7 +127,7 @@ def search_one_wire(num_switches: int = 32) -> None:
                 if display_idx == num_switches:
                         break
                 else:
-                        print("Found " + display_idx + " displays.")
+                        print("Found ", display_idx, " displays.")
                         loop_count += 1
                         continue
         return
