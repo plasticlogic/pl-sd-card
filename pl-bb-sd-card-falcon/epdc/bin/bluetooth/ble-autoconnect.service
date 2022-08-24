@@ -1,0 +1,11 @@
+[Unit]
+Description=Autoconnect BLE devices from config
+
+[Service]
+WorkingDirectory=/home/pi/repos/pl-sd-card/pl-bb-sd-card-falcon/epdc/bin/bluetooth/
+User=pi
+Environment=PATH=/home/pi/.local/lib/python3.9/site-packages:/home/pi/.local/bin
+ExecStart=/usr/bin/python3 ble-autoconnect.py
+
+[Install]
+WantedBy=multi-user.target
