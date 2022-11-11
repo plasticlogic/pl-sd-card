@@ -3,6 +3,7 @@
 import sys
 import os
 import logging
+import logging.handlers
 
 import parse
 import Panel
@@ -36,7 +37,7 @@ def setup_logger() -> None:
                 filename="logging.out",
                 mode='a',
                 maxBytes=5*1024*1024,
-                backupCount=2
+                backupCount=2,
                 encoding="utf-8",
                 delay=0
         )
