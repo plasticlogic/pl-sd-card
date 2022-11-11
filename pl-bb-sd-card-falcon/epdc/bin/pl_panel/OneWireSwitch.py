@@ -125,6 +125,7 @@ def search_one_wire(num_switches: int = 32) -> None:
                         if dev_id.find(FamilyCodes.DS2413) != -1:
                                 display_idx += 1
                 if display_idx == num_switches:
+                        print("Found all ", num_switches, " displays.")
                         break
                 else:
                         print("Found ", display_idx, " displays.")
