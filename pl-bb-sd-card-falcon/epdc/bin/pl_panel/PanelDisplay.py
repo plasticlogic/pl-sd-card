@@ -16,15 +16,15 @@ class PanelDisplay:
 
         def update(self, image_path: str) -> None:
                 self.logger.debug("Set new image")
-                try_call_epdc(["epdc-app", "-load_buffer", image_path, "7", "2", "0,0,1280,960"])
+                try_call_epdc("epdc-app -load_buffer {} 7 2 0,0,1280,960".format(image_path))
 
         def write_pre_buffer(self, buf_path: str) -> None:
                 self.logger.debug("Set old image")
-                try_call_epdc(["epdc-app", "-override_post_buffer", buf_path, "1"])
+                try_call_epdc("epdc-app -override_post_buffer {} 1".format(buf_path))
 
         def clear(self) -> None:
                 self.logger.debug("Trigger clear update")
-                try_call_epdc(["epdc-app", "-fill", "GL15", "0"])
+                try_call_epdc("epdc-app -fill GL15 0")
 
         def enable(self) -> None:
                 self.logger.debug("Enable display")
@@ -36,15 +36,15 @@ class PanelDisplay:
 
 def set_temperature(temp: int = 23) -> None:
         logging.info("Set temperature to {}".format(temp))
-        try_call_epdc(["epdc-app", "-set_temperature", str(temp)])
+        try_call_epdc("epdc-app -set_temperature {}".format(temp))
 
 def start_epdc() -> None:
         logging.debug("Start EPDC")
-        subprocess.call(["epdc-app", "-start_epdc", "0", "0"], stdout=subprocess.DEVNULL)
+        try_call_epdc("epdc-app -start_epdc 0 0")
 
 def stop_epdc() -> None:
         logging.debug("Stop EPDC:")
-        subprocess.call(["epdc-app", "-stop_epdc"], stdout=subprocess.DEVNULL)
+        try_call_epdc("epdc-app -stop_epdc")
 
 def try_call_epdc(args) -> None:
         timeout_counter = 0
