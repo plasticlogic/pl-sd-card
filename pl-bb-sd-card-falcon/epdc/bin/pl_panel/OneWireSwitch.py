@@ -140,7 +140,7 @@ def search_one_wire(num_switches: int = 32) -> None:
 
 def remove_one_wire_devices() -> None:
         """Removes all one wire devices."""
-        #print("Remove devices")
+        logging.debug("Remove switches")
         dev_list = get_all_devices()
         #print("Dev list: ", dev_list)
         for dev in dev_list:
