@@ -3,6 +3,7 @@ Panel display class module.
 """
 
 import subprocess
+import logging
 
 from OneWireSwitch import OneWireSwitch, SwitchState
 
@@ -11,37 +12,38 @@ class PanelDisplay:
                 self.__one_wire_switch = OneWireSwitch(one_wire_id)
                 self.disable()
                 self.__display_idx = display_idx
+                self.logger = logging.getLogger("Display_{}".format(self.__display_idx))
 
         def update(self, image_path: str) -> None:
-                print("SET NEW IMAGE")
+                self.logger.debug("Set new image")
                 try_call_epdc(["epdc-app", "-load_buffer", image_path, "7", "2", "0,0,1280,960"])
 
         def write_pre_buffer(self, buf_path: str) -> None:
-                print("SET OLD IMAGE")
+                self.logger.debug("Set old image")
                 try_call_epdc(["epdc-app", "-override_post_buffer", buf_path, "1"])
 
         def clear(self) -> None:
-                print("CLEAR UPDATE")
+                self.logger.debug("Trigger clear update")
                 try_call_epdc(["epdc-app", "-fill", "GL15", "0"])
 
         def enable(self) -> None:
-                print("ENABLE DISPLAY {}".format(self.__display_idx))
+                self.logger.debug("Enable display")
                 self.__one_wire_switch.set_switch(SwitchState.ON)
 
         def disable(self) -> None:
-                print("DISABLE DISPLAY {}".format(self.__display_idx))
+                self.logger.debug("Disable display")
                 self.__one_wire_switch.set_switch(SwitchState.OFF)
 
 def set_temperature(temp: int = 23) -> None:
-        print("SET TEMPERATURE TO {}".format(temp))
+        logging.info("Set temperature to {}".format(temp))
         try_call_epdc(["epdc-app", "-set_temperature", str(temp)])
 
 def start_epdc() -> None:
-        print("START EPDC:")
+        logging.debug("Start EPDC")
         subprocess.call(["epdc-app", "-start_epdc", "0", "0"], stdout=subprocess.DEVNULL)
 
 def stop_epdc() -> None:
-        print("STOP EPDC:")
+        logging.debug("Stop EPDC:")
         subprocess.call(["epdc-app", "-stop_epdc"], stdout=subprocess.DEVNULL)
 
 def try_call_epdc(args) -> None:
@@ -49,7 +51,7 @@ def try_call_epdc(args) -> None:
         max_timeout = 10
         while True:
                 if (timeout_counter >= max_timeout):
-                        print("Error: Failed to call epdc-app!")
+                        logging.error("Failed to call epdc-app.")
                         break
                 timeout_counter += 1
                 try:
@@ -57,9 +59,9 @@ def try_call_epdc(args) -> None:
 
                         if p.returncode != 0:
                                 proc_res = p.stdout.decode()
-                                print("EPDC ERROR (Error Code {}):\n{}".format(p.returncode, proc_res))
+                                logging.warning("EPDC error (Error Code {}):\n{}".format(p.returncode, proc_res))
                                 p.check_returncode() # raise CalledProcessError
                         break
                 except:
-                        print("TRY TO RECOVER EPDC (Try {} of {})".format(timeout_counter, max_timeout))
+                        logging.info("Try to restart EPDC (Try {} of {})".format(timeout_counter, max_timeout))
                         start_epdc()
