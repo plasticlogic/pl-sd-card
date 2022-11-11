@@ -8,19 +8,6 @@ import Panel
 import OneWireSwitch
 import PanelDisplay
 
-LOCK_FILE_PATH = "/tmp/.lock_script"
-
-def lock_mutex():
-        if os.path.exists(LOCK_FILE_PATH):
-                print("Error: script was already activated.")
-                sys.exit(-1)
-        else:
-                file = open(LOCK_FILE_PATH, "w")
-
-def unlock_mutex():
-        assert(os.path.exists(LOCK_FILE_PATH))
-        os.remove(LOCK_FILE_PATH)
-
 def execute(args) -> None:
         if args.init:
                 PanelDisplay.start_epdc()
@@ -45,17 +32,12 @@ def execute(args) -> None:
 
 def main() -> None:
         try:
-                lock_mutex()
-
                 parser = parse.init_argparse()
                 args = parser.parse_args()
                 sys.stdout.flush()
                 execute(args)
-
-                unlock_mutex()
         except:
-                pass
-                unlock_mutex()
+                print("ERROR: execution failed.")
 
 if __name__ == "__main__":
         main()
