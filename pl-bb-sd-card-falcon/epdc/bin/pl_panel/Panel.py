@@ -100,6 +100,9 @@ class Panel:
                 pre_buffer_files = os.listdir(PRE_BUFFER_FOLDER)
                 pre_buffer_files.sort()
                 for display_idx in range(panel_elements):
+                        for dsp in self.__displays:
+                                dsp.disable() # Disable all displays
+
                         pre_file = os.path.join(PRE_BUFFER_FOLDER, pre_buffer_files[display_idx])
                         post_file = os.path.join(POST_BUFFER_FOLDER, post_buffer_files[display_idx])
                         current_display = self.__displays[display_idx]
