@@ -35,6 +35,11 @@ class Panel:
                 Search for display one wire switches and create panel objects for them.
                 """
                 path = OneWireSwitch.ONE_WIRE_DEVICES_FOLDER
+
+                if not os.path.isdir(path):
+                        self.logger.warning("Cannot find OneWire devices folder")
+                        return
+
                 device_ids = os.listdir(path)
 
                 display_idx = 0
@@ -47,9 +52,19 @@ class Panel:
                 """
                 Clear the whole panel.
                 """
+
+                self.logger.debug("Start clear update")
+                self.logger.debug("Display count: {}".format(self.__displays))
+
+                if not self.__displays:
+                        self.logger.warning("No displays")
+                        return
+
+                self.logger.debug("Reorientate panel displays")
                 if self.__is_reorientable():
                         self.__reorientate_panels()
 
+                self.logger.debug("Prepare images")
                 raw_img_data = bytearray([0xFF] * 1280 * 960)
                 for dsp_idx in range(len(self.__displays)):
                         self.logger.debug("Clear Display {}".format(dsp_idx))
@@ -57,17 +72,26 @@ class Panel:
                         with open(raw_img_path, "wb") as raw_img_file:
                                 raw_img_file.write(raw_img_data)
 
+                self.logger.debug("Start clear update")
                 for display in self.__displays:
                         display.enable()
                         display.clear()
                         display.disable()
 
+                self.logger.debug("Copy image data to pre")
                 self.__copy_post_to_pre()
 
         def update(self, update_folder: str) -> None:
                 """
                 Update panel.
                 """
+
+                self.logger.debug("Start update")
+
+                if not self.__displays:
+                        self.logger.warning("No displays")
+                        return
+
                 if self.__is_reorientable():
                         self.logger.debug("Start normal update")
                         self.__reorientate_panels()
