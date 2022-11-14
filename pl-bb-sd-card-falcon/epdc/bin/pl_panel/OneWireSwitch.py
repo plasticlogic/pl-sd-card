@@ -89,11 +89,13 @@ class OneWireSwitch:
                                                 return state_file.read(1) == self.__check_off_state
                         except:
                                 pass
-
-        __on_state = b"\xff" # GPIO A -> off; GPIO B -> on
-        __off_state = b"\xfc"
-        __check_on_state = b"\x0f"
-        __check_off_state = b"\xf0"
+        # GPIO A -> off; GPIO B -> on
+        # WRITE: send char -> 0bxxxxxx[PIOB][PIOA]
+        # READ:  read char -> 0b[Complement of b3 to b0][PIOB Latch][PIOB Pin state][PIOB Latch][PIOB Pin state]
+        __on_state = b"\xff" # PoC: GPIO(A,B) = (on,on) -> b"\xff" | Prototypes: GPIO(A,B) = (on,on) -> b"\xff"
+        __off_state = b"\xfc" # PoC: GPIO(A,B) = (off,on) -> b"\xfc" | Prototypes: GPIO(A,B) = (off,off) -> b"\xfc"
+        __check_on_state = b"\x0f" # PoC:  | Prototypes: b"\x0f"
+        __check_off_state = b"\xf0" # PoC:  | Prototypes: b"\xf0" 
 
 def search_one_wire(num_switches: int = 32) -> None:
         """Search for one wire switches.
@@ -111,6 +113,8 @@ def search_one_wire(num_switches: int = 32) -> None:
                         search_file.write(str(1))
                 except IOError:
                         logging.error("File IO error (File '{}').".format(search_file_path))
+                except:
+                        logging.error("Failed to open on wire search file")
                 search_file.close()
                 
                 try:
@@ -120,6 +124,8 @@ def search_one_wire(num_switches: int = 32) -> None:
                                 search_file.seek(0, 0)
                 except IOError:
                         logging.error("File IO error (File '{}').".format(search_file_path))
+                except:
+                        logging.error("Failed to open on wire search file")
                 search_file.close()
 
                 path = ONE_WIRE_DEVICES_FOLDER
@@ -151,6 +157,11 @@ def remove_one_wire_devices() -> None:
 
 def get_all_devices() -> List[str]:
         """Get all one wire devices id strings."""
+        logging.debug("Try to get all devices")
+        if not os.path.isdir(ONE_WIRE_DEVICES_FOLDER):
+                logging.warning("One wire device folder does not exist")
+                return []
+
         devices = os.listdir(ONE_WIRE_DEVICES_FOLDER)
         dev_list = []
 
