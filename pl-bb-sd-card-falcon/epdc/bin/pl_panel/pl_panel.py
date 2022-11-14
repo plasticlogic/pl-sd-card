@@ -2,26 +2,16 @@
 
 import sys
 import os
+import logging
+import logging.handlers
 
 import parse
 import Panel
 import OneWireSwitch
 import PanelDisplay
 
-LOCK_FILE_PATH = "/tmp/.lock_script"
-
-def lock_mutex():
-        if os.path.exists(LOCK_FILE_PATH):
-                print("Error: script was already activated.")
-                sys.exit(-1)
-        else:
-                file = open(LOCK_FILE_PATH, "w")
-
-def unlock_mutex():
-        assert(os.path.exists(LOCK_FILE_PATH))
-        os.remove(LOCK_FILE_PATH)
-
 def execute(args) -> None:
+        logging.debug("Into execute")
         if args.init:
                 PanelDisplay.start_epdc()
                 PanelDisplay.set_temperature()
@@ -29,8 +19,11 @@ def execute(args) -> None:
                 OneWireSwitch.search_one_wire(32)
                 return
 
+        logging.debug("Create Panel object")
         pl_panel = Panel.Panel()
+        logging.debug("Collecting displays")
         pl_panel.get_displays_by_switches()
+        logging.debug("Got displays")
 
         if args.show_arrangement:
                 pl_panel.clear()
@@ -38,24 +31,45 @@ def execute(args) -> None:
                 return
 
         if args.clear:
+                logging.debug("Calling clear update.")
                 pl_panel.clear()
+                return
 
         if args.update_all:
+                logging.debug("Calling update")
                 pl_panel.update(args.update_all)
+                return
+
+def setup_logger() -> None:
+        rfh = logging.handlers.RotatingFileHandler(
+                filename="/boot/uboot/epdc/bin/pl_panel/logging.out",
+                mode='a',
+                maxBytes=5*1024*1024,
+                backupCount=2,
+                encoding="utf-8",
+                delay=0
+        )
+
+        logging.basicConfig(
+                level=logging.DEBUG,
+                format="%(asctime)s %(name)-25s %(levelname)-8s %(message)s",
+                datefmt="%y-%m-%d %H:%M:%S",
+                handlers=[ rfh ]
+        )
 
 def main() -> None:
+        setup_logger()
+        logger = logging.getLogger('main')
         try:
-                #lock_mutex()
-
+                logger.debug("Start parsing")
                 parser = parse.init_argparse()
                 args = parser.parse_args()
-                execute(args)
                 sys.stdout.flush()
-
-                #unlock_mutex()
+                logger.debug("Start process")
+                logger.debug("args: {}".format(args))
+                execute(args)
         except:
-                pass
-                #unlock_mutex()
+                logger.error("ERROR: execution failed.")
 
 if __name__ == "__main__":
         main()

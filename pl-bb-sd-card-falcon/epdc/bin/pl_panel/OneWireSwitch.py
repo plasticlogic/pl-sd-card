@@ -7,6 +7,7 @@ import os
 import re
 from time import sleep
 from typing import List
+import logging
 
 ONE_WIRE_DEVICES_FOLDER = "/sys/bus/w1/devices"
 ONE_WIRE_MASTER_FOLDER = "/sys/bus/w1/devices/w1_bus_master1"
@@ -29,6 +30,7 @@ class OneWireSwitch:
         def __init__(self, switch_id: str):
                 self.switch_id = switch_id
                 self.dev_path = os.path.join(ONE_WIRE_DEVICES_FOLDER, switch_id)
+                self.logger = logging.getLogger("OneWireSwitch_{}", switch_id)
 
         def set_switch(self, state: SwitchState) -> None:
                 """Turn on/off switch.
@@ -39,7 +41,7 @@ class OneWireSwitch:
 
                 while True:
                         if (timeout_counter >= ONE_WIRE_TIMEOUT):
-                                print("Error: Failed to write to 1w!")
+                                self.logger.error("Timeout error: Failed to write to 1w!")
                                 break
 
                         timeout_counter += 1
@@ -47,19 +49,22 @@ class OneWireSwitch:
                                 output_file = open(out_file, "wb")
                                 with output_file:
                                         if (state == SwitchState.ON):
+                                                self.logger.debug("Switch on")
                                                 #print(self.__on_state)
                                                 output_file.write(self.__on_state)
                                                 if (not self.__check_switch_state(SwitchState.ON)):
                                                         #print("ON TEST: ", self.__check_switch_state(SwitchState.ON))
                                                         continue
                                         else:
+                                                self.logger.debug("Switch off")
                                                 output_file.write(self.__off_state)
                                                 if (not self.__check_switch_state(SwitchState.OFF)):
                                                         #print("OFF TEST: ", self.__check_switch_state(SwitchState.OFF))
                                                         continue
                                 break
                         except IOError:
-                                pass #print("Failed to open file '", out_file, "'.")
+                                self.logger.error("Failed to switch")
+                                #print("Failed to open file '", out_file, "'.")
 
         def __check_switch_state(self, state: SwitchState) -> bool:
                 state_file_path = os.path.join(self.dev_path, "state")
@@ -84,28 +89,32 @@ class OneWireSwitch:
                                                 return state_file.read(1) == self.__check_off_state
                         except:
                                 pass
-
-        __on_state = b"\xfe" # GPIO A -> off; GPIO B -> on
-        __off_state = b"\xfd"
-        __check_on_state = b"\x3c"
-        __check_off_state = b"\xc3"
+        # GPIO A -> off; GPIO B -> on
+        # WRITE: send char -> 0bxxxxxx[PIOB][PIOA]
+        # READ:  read char -> 0b[Complement of b3 to b0][PIOB Latch][PIOB Pin state][PIOB Latch][PIOB Pin state]
+        __on_state = b"\xff" # PoC: GPIO(A,B) = (on,on) -> b"\xff" | Prototypes: GPIO(A,B) = (on,on) -> b"\xff"
+        __off_state = b"\xfc" # PoC: GPIO(A,B) = (off,on) -> b"\xfc" | Prototypes: GPIO(A,B) = (off,off) -> b"\xfc"
+        __check_on_state = b"\x0f" # PoC:  | Prototypes: b"\x0f"
+        __check_off_state = b"\xf0" # PoC:  | Prototypes: b"\xf0" 
 
 def search_one_wire(num_switches: int = 32) -> None:
         """Search for one wire switches.
         """
-        #print("Search devices")
+        logging.debug("Search devices")
         search_file_path = os.path.join(ONE_WIRE_MASTER_FOLDER, "w1_master_search")
         loop_count = 0
         
         while True:
                 if loop_count >= ONE_WIRE_SEARCH_MAX_LOOPS:
-                        print("Cannot find correct number of displays!")
+                        logging.warning("Cannot find correct number of displays!")
                         raise Exception("Search Timeout")
                 try:
                         search_file = open(search_file_path, mode="w")
                         search_file.write(str(1))
                 except IOError:
-                        print("File IO error.")
+                        logging.error("File IO error (File '{}').".format(search_file_path))
+                except:
+                        logging.error("Failed to open on wire search file")
                 search_file.close()
                 
                 try:
@@ -114,7 +123,9 @@ def search_one_wire(num_switches: int = 32) -> None:
                                 sleep(1)
                                 search_file.seek(0, 0)
                 except IOError:
-                        print("File IO Error")
+                        logging.error("File IO error (File '{}').".format(search_file_path))
+                except:
+                        logging.error("Failed to open on wire search file")
                 search_file.close()
 
                 path = ONE_WIRE_DEVICES_FOLDER
@@ -125,16 +136,17 @@ def search_one_wire(num_switches: int = 32) -> None:
                         if dev_id.find(FamilyCodes.DS2413) != -1:
                                 display_idx += 1
                 if display_idx == num_switches:
+                        logging.info("Found all ", num_switches, " displays.")
                         break
                 else:
-                        print("Found " + display_idx + " displays.")
+                        logging.debug("Found ", display_idx, " displays.")
                         loop_count += 1
                         continue
         return
 
 def remove_one_wire_devices() -> None:
         """Removes all one wire devices."""
-        #print("Remove devices")
+        logging.debug("Remove switches")
         dev_list = get_all_devices()
         #print("Dev list: ", dev_list)
         for dev in dev_list:
@@ -145,6 +157,11 @@ def remove_one_wire_devices() -> None:
 
 def get_all_devices() -> List[str]:
         """Get all one wire devices id strings."""
+        logging.debug("Try to get all devices")
+        if not os.path.isdir(ONE_WIRE_DEVICES_FOLDER):
+                logging.warning("One wire device folder does not exist")
+                return []
+
         devices = os.listdir(ONE_WIRE_DEVICES_FOLDER)
         dev_list = []
 
