@@ -11,6 +11,7 @@ import OneWireSwitch
 import PanelDisplay
 
 def execute(args) -> None:
+        logging.debug("Into execute")
         if args.init:
                 PanelDisplay.start_epdc()
                 PanelDisplay.set_temperature()
@@ -18,8 +19,11 @@ def execute(args) -> None:
                 OneWireSwitch.search_one_wire(32)
                 return
 
+        logging.debug("Create Panel object")
         pl_panel = Panel.Panel()
+        logging.debug("Collecting displays")
         pl_panel.get_displays_by_switches()
+        logging.debug("Got displays")
 
         if args.show_arrangement:
                 pl_panel.clear()
@@ -27,14 +31,18 @@ def execute(args) -> None:
                 return
 
         if args.clear:
+                logging.debug("Calling clear update.")
                 pl_panel.clear()
+                return
 
         if args.update_all:
+                logging.debug("Calling update")
                 pl_panel.update(args.update_all)
+                return
 
 def setup_logger() -> None:
         rfh = logging.handlers.RotatingFileHandler(
-                filename="logging.out",
+                filename="/boot/uboot/epdc/bin/pl_panel/logging.out",
                 mode='a',
                 maxBytes=5*1024*1024,
                 backupCount=2,
@@ -58,6 +66,7 @@ def main() -> None:
                 args = parser.parse_args()
                 sys.stdout.flush()
                 logger.debug("Start process")
+                logger.debug("args: {}".format(args))
                 execute(args)
         except:
                 logger.error("ERROR: execution failed.")
