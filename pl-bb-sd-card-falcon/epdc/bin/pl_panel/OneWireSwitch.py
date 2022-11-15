@@ -89,13 +89,12 @@ class OneWireSwitch:
                                                 return state_file.read(1) == self.__check_off_state
                         except:
                                 pass
-        # GPIO A -> off; GPIO B -> on
         # WRITE: send char -> 0bxxxxxx[PIOB][PIOA]
         # READ:  read char -> 0b[Complement of b3 to b0][PIOB Latch][PIOB Pin state][PIOB Latch][PIOB Pin state]
-        __on_state = b"\xff" # PoC: GPIO(A,B) = (on,on) -> b"\xff" | Prototypes: GPIO(A,B) = (on,on) -> b"\xff"
-        __off_state = b"\xfc" # PoC: GPIO(A,B) = (off,on) -> b"\xfc" | Prototypes: GPIO(A,B) = (off,off) -> b"\xfc"
-        __check_on_state = b"\x0f" # PoC:  | Prototypes: b"\x0f"
-        __check_off_state = b"\xf0" # PoC:  | Prototypes: b"\xf0" 
+        __on_state = b"\xff"
+        __off_state = b"\xfc"
+        __check_on_state = b"\x0f"
+        __check_off_state = b"\xf0"
 
 def search_one_wire(num_switches: int = 32) -> None:
         """Search for one wire switches.
