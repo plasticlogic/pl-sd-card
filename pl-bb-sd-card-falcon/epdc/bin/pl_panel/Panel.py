@@ -34,6 +34,7 @@ class Panel:
                 """
                 Search for display one wire switches and create panel objects for them.
                 """
+                self.logger.debug("Search for displays")
                 path = OneWireSwitch.ONE_WIRE_DEVICES_FOLDER
 
                 if not os.path.isdir(path):
@@ -45,6 +46,7 @@ class Panel:
                 display_idx = 0
                 for dev_id in device_ids:
                         if dev_id.find(OneWireSwitch.FamilyCodes.DS2413) != -1:
+                                self.logger.debug("Found display (ID: {}, switch ID: {})".format(display_idx, dev_id))
                                 self.__displays.append(PanelDisplay(dev_id, display_idx))
                                 display_idx += 1
 
@@ -74,8 +76,11 @@ class Panel:
 
                 self.logger.debug("Start clear update")
                 for display in self.__displays:
+                        self.logger.debug("Enable display {}".format(display.__display_idx))
                         display.enable()
+                        self.logger.debug("Clear display {}".format(display.__display_idx))
                         display.clear()
+                        self.logger.debug("Disable display {}".format(display.__display_idx))
                         display.disable()
 
                 self.logger.debug("Copy image data to pre")
@@ -97,10 +102,10 @@ class Panel:
                         self.__reorientate_panels()
                         self.__update(update_folder)
                 else:
-                        self.logger.debug("start number update")
                         self.config_panel_update()
 
         def config_panel_update(self) -> None:
+                self.logger.debug("start number update")
                 self.__update(CONFIG_IMAGES_FOLDER)
 
         def __update(self, folder_path: str) -> None:
@@ -128,16 +133,20 @@ class Panel:
                 pre_buffer_files.sort()
                 for display_idx in range(panel_elements):
                         self.logger.debug("Update display {}".format(display_idx))
-                        for dsp in self.__displays:
-                                dsp.disable() # Disable all displays
+                        #for dsp in self.__displays:
+                        #        dsp.disable() # Disable all displays
 
                         pre_file = os.path.join(PRE_BUFFER_FOLDER, pre_buffer_files[display_idx])
                         post_file = os.path.join(POST_BUFFER_FOLDER, post_buffer_files[display_idx])
                         current_display = self.__displays[display_idx]
 
+                        self.logger.debug("Enable display {}".format(current_display.__display_idx))
                         current_display.enable()
+                        self.logger.debug("Write display {} pre buffer".format(current_display.__display_idx))
                         current_display.write_pre_buffer(pre_file)
+                        self.logger.debug("Update display {}".format(current_display.__display_idx))
                         current_display.update(post_file)
+                        self.logger.debug("Disable display {}".format(current_display.__display_idx))
                         current_display.disable()
 
                 self.__copy_post_to_pre()
@@ -145,7 +154,9 @@ class Panel:
         def __get_orientation_arr(self):
                 orientation_arr = []
                 
+                self.logger.debug("Get panel arrangement")
                 if not os.path.isfile(CONFIG_ORIENTATION_FILE):
+                        self.logger.warning("No panel arrangement file.")
                         return orientation_arr
 
                 with open(CONFIG_ORIENTATION_FILE) as f:
@@ -153,26 +164,33 @@ class Panel:
                                 for num in line.split():
                                         orientation_arr.append(int(num))
                 
+                self.logger.debug("Panel arrangement: [{}]".format(*orientation_arr))
                 return orientation_arr
 
         def __is_reorientable(self) -> bool:
                 
+                self.logger.debug("Check if panel is reorientable")
                 orientation_arr = self.__get_orientation_arr()
 
                 num_dsp = len(self.__displays)
                 if not len(orientation_arr) == num_dsp:
+                        self.logger.warning("Display count mismatch. Panel is not reorientable")
                         return False
                 
                 if max(orientation_arr) > num_dsp:
+                        self.logger.warning("Display max idx mismatch. Panel is not reorientable")
                         return False
 
                 for dsp_idx in orientation_arr:
                         if orientation_arr.count(dsp_idx) > 1:
+                                self.logger.warning("Display idx appears multiple times in arrangement. Panel is not reorientable")
                                 return False
                 
+                self.logger.warning("Panel is reorientable")
                 return True
 
         def __reorientate_panels(self) -> None:
+                self.logger.debug("Start panel reorientation")
                 orientation_arr = self.__get_orientation_arr()
                 new_dsp_list = []
 
@@ -201,9 +219,13 @@ class Panel:
                 """
                 Copy current post buffer content into pre buffer.
                 """
+                self.logger.debug("Start copying post images to pre")
                 for folder_item in os.listdir(POST_BUFFER_FOLDER):
                         src_path = os.path.join(POST_BUFFER_FOLDER, folder_item)
                         dest_path = os.path.join(PRE_BUFFER_FOLDER, folder_item)
 
                         if (os.path.isfile(src_path)):
+                                self.logger.debug("Copy \'{}\' to \'{}\'".format(src_path, dest_path))
                                 shutil.copyfile(src_path, dest_path)
+                        else:
+                                self.logger.warning("\'{}\' is not a file".format(src_path))
