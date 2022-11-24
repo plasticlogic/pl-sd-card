@@ -12,7 +12,7 @@ class PanelDisplay:
                 self.__one_wire_switch = OneWireSwitch(one_wire_id)
                 self.disable()
                 self.__display_idx = display_idx
-                self.logger = logging.getLogger("Display_{}".format(self.__display_idx))
+                self.logger = logging.getLogger("Display")
 
         def update(self, image_path: str) -> None:
                 self.logger.debug("Set new image")

@@ -30,7 +30,7 @@ class OneWireSwitch:
         def __init__(self, switch_id: str):
                 self.switch_id = switch_id
                 self.dev_path = os.path.join(ONE_WIRE_DEVICES_FOLDER, switch_id)
-                self.logger = logging.getLogger("OneWireSwitch_{}", switch_id)
+                self.logger = logging.getLogger("OneWireSwitch")
 
         def set_switch(self, state: SwitchState) -> None:
                 """Turn on/off switch.
@@ -135,10 +135,10 @@ def search_one_wire(num_switches: int = 32) -> None:
                         if dev_id.find(FamilyCodes.DS2413) != -1:
                                 display_idx += 1
                 if display_idx == num_switches:
-                        logging.info("Found all ", num_switches, " displays.")
+                        logging.info("Found all {} displays".format(num_switches))
                         break
                 else:
-                        logging.debug("Found ", display_idx, " displays.")
+                        logging.debug("Found {} displays".format(display_idx))
                         loop_count += 1
                         continue
         return
