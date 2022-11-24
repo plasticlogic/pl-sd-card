@@ -56,7 +56,7 @@ class Panel:
                 """
 
                 self.logger.debug("Start clear update")
-                self.logger.debug("Display count: {}".format(self.__displays))
+                #self.logger.debug("Display count: {}".format(self.__displays))
 
                 if not self.__displays:
                         self.logger.warning("No displays")
@@ -140,13 +140,13 @@ class Panel:
                         post_file = os.path.join(POST_BUFFER_FOLDER, post_buffer_files[display_idx])
                         current_display = self.__displays[display_idx]
 
-                        self.logger.debug("Enable display {}".format(current_display.__display_idx))
+                        self.logger.debug("Enable display {}".format(display_idx))
                         current_display.enable()
-                        self.logger.debug("Write display {} pre buffer".format(current_display.__display_idx))
+                        self.logger.debug("Write display {} pre buffer".format(display_idx))
                         current_display.write_pre_buffer(pre_file)
-                        self.logger.debug("Update display {}".format(current_display.__display_idx))
+                        self.logger.debug("Update display {}".format(display_idx))
                         current_display.update(post_file)
-                        self.logger.debug("Disable display {}".format(current_display.__display_idx))
+                        self.logger.debug("Disable display {}".format(display_idx))
                         current_display.disable()
 
                 self.__copy_post_to_pre()
@@ -186,7 +186,7 @@ class Panel:
                                 self.logger.warning("Display idx appears multiple times in arrangement. Panel is not reorientable")
                                 return False
                 
-                self.logger.warning("Panel is reorientable")
+                self.logger.debug("Panel is reorientable")
                 return True
 
         def __reorientate_panels(self) -> None:
@@ -206,7 +206,7 @@ class Panel:
                 target_path = os.path.join(POST_BUFFER_FOLDER, f'{idx:03d}.raw')
 
                 self.logger.debug("Convert Image")
-                p = subprocess.run(["png2cfa", "--cfa=rgwb", "-i", img_path, "-o", target_path])
+                p = subprocess.run(["png2cfa", "--cfa=grwb", "-i", img_path, "-o", target_path])
                 
                 if p.returncode != 0:
                         self.logger.error("Failed to convert {}.\nError Code {}.\n".format(
