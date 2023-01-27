@@ -76,11 +76,11 @@ class Panel:
 
                 self.logger.debug("Start clear update")
                 for display in self.__displays:
-                        self.logger.debug("Enable display {}".format(display.__display_idx))
+                        self.logger.debug("Enable display")
                         display.enable()
-                        self.logger.debug("Clear display {}".format(display.__display_idx))
+                        self.logger.debug("Clear display")
                         display.clear()
-                        self.logger.debug("Disable display {}".format(display.__display_idx))
+                        self.logger.debug("Disable display")
                         display.disable()
 
                 self.logger.debug("Copy image data to pre")
@@ -132,7 +132,7 @@ class Panel:
                 pre_buffer_files = os.listdir(PRE_BUFFER_FOLDER)
                 pre_buffer_files.sort()
                 for display_idx in range(panel_elements):
-                        self.logger.debug("Update display {}".format(display_idx))
+                        self.logger.debug("Update display")
                         #for dsp in self.__displays:
                         #        dsp.disable() # Disable all displays
 
@@ -140,13 +140,13 @@ class Panel:
                         post_file = os.path.join(POST_BUFFER_FOLDER, post_buffer_files[display_idx])
                         current_display = self.__displays[display_idx]
 
-                        self.logger.debug("Enable display {}".format(display_idx))
+                        self.logger.debug("Enable display")
                         current_display.enable()
-                        self.logger.debug("Write display {} pre buffer".format(display_idx))
+                        self.logger.debug("Write display pre buffer")
                         current_display.write_pre_buffer(pre_file)
-                        self.logger.debug("Update display {}".format(display_idx))
+                        self.logger.debug("Update display")
                         current_display.update(post_file)
-                        self.logger.debug("Disable display {}".format(display_idx))
+                        self.logger.debug("Disable display")
                         current_display.disable()
 
                 self.__copy_post_to_pre()
@@ -163,8 +163,6 @@ class Panel:
                         for line in f:
                                 for num in line.split():
                                         orientation_arr.append(int(num))
-                
-                self.logger.debug("Panel arrangement: [{}]".format(*orientation_arr))
                 return orientation_arr
 
         def __is_reorientable(self) -> bool:

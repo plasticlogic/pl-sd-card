@@ -9,10 +9,10 @@ from OneWireSwitch import OneWireSwitch, SwitchState
 
 class PanelDisplay:
         def __init__(self, one_wire_id: str, display_idx: int):
+                self.logger = logging.getLogger("Display")
                 self.__one_wire_switch = OneWireSwitch(one_wire_id)
                 self.disable()
                 self.__display_idx = display_idx
-                self.logger = logging.getLogger("Display")
 
         def update(self, image_path: str) -> None:
                 self.logger.debug("Set new image")
